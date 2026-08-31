@@ -7,7 +7,7 @@ var cn = (classnames) => {
 const djb2 = (string) => {
   let hash = 5381;
   for (const c of string) {
-    hash = 33 * t ^ c.charCodeAt(0);
+    hash = (hash * 33) ^ c.charCodeAt(0);
   }
   return hash >>> 0;
 };
@@ -79,7 +79,7 @@ const getColor = (str, isPrimary) => {
 var formatDate = (dateStr) => {
   const date = new Date(dateStr);
   const month = (date.getMonth() + 1).toString().padStart(2, "0");
-  const day = (date.getDay() + 1).toString().padStart(2, "0");
+  const day = date.getDate().toString().padStart(2, "0");
   const year = date.getFullYear().toString().substring(2, 4);
   return `${month}/${day}/${year}`;
 };
@@ -89,12 +89,14 @@ var getAuthorName = (post, userMap) => {
   if (post.is_anonymous) {
     return getAnonymousName(post.anonymous_id);
   }
-  return userMap[post.user_id].name;
+  const user = userMap[post.user_id];
+  return user ? user.name : "Unknown";
 }
 
 /* Get author avatar url from post */
 var getAvatar = (post, userMap) => {
-  const avatar = userMap[post.user_id].avatar;
+  const user = userMap[post.user_id];
+  const avatar = user ? user.avatar : null;
   return avatar ? "assets/avatars/" + avatar + ".jpg" : "";
 }
 
@@ -122,7 +124,9 @@ var IMG_ANON_AVATAR =
   "PC9zdmc+Cg==";
 
 /* Get abbreviated name as backup avatar */
-var getNameAbbrev = (post, userMap) => { const name = userMap[post.user_id].name;
+var getNameAbbrev = (post, userMap) => {
+  const user = userMap[post.user_id];
+  const name = user ? user.name : "Unknown";
   return name.split(" ").map(n => n.substring(0, 1)).join("").toUpperCase();
 }
 
